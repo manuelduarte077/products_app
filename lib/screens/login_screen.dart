@@ -6,8 +6,34 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: AuthBackground(),
+    return Scaffold(
+      body: AuthBackground(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 250),
+              CardContainer(
+                  child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Text('Ingreso', style: Theme.of(context).textTheme.headline5),
+                  const SizedBox(height: 30),
+                  const Text('Formulario de login'),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: Theme.of(context).textTheme.bodyText1,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
