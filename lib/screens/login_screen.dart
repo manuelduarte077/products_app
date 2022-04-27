@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:product_app/ui/input_decorations.dart';
+import 'package:provider/provider.dart';
+
 import 'package:product_app/widgets/widgets.dart';
+import 'package:product_app/ui/input_decorations.dart';
+import 'package:product_app/providers/login_form_provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,10 +20,12 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    Text('Ingreso',
-                        style: Theme.of(context).textTheme.headline5),
+                    Text('Login', style: Theme.of(context).textTheme.headline5),
                     const SizedBox(height: 30),
-                    const _LoginForm(),
+                    ChangeNotifierProvider(
+                      create: (context) => LoginFormProvider(),
+                      child: const _LoginForm(),
+                    ),
                   ],
                 ),
               ),
@@ -51,7 +56,10 @@ class _LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loginForm = Provider.of<LoginFormProvider>(context);
+
     return Form(
+      key: loginForm.formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
@@ -63,6 +71,7 @@ class _LoginForm extends StatelessWidget {
               hintText: 'manuel@gmail.com',
               prefixIcon: Icons.alternate_email_sharp,
             ),
+            onChanged: (value) => loginForm.email = value,
             validator: (value) {
               String pattern =
                   r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -83,6 +92,7 @@ class _LoginForm extends StatelessWidget {
               hintText: '********',
               prefixIcon: Icons.lock_outline,
             ),
+            onChanged: (value) => loginForm.password = value,
             validator: (value) {
               return (value != null && value.length >= 5)
                   ? null
@@ -98,15 +108,29 @@ class _LoginForm extends StatelessWidget {
             elevation: 0,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
-              child: const Text(
-                'Ingresar',
-                style: TextStyle(
+              child: Text(
+                loginForm.isLoading ? 'Loading...' : 'Iniciar sesión',
+                style: const TextStyle(
                   fontSize: 18,
                   color: Colors.white,
                 ),
               ),
             ),
-            onPressed: () {},
+            onPressed: loginForm.isLoading
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+
+                    if (!loginForm.isValidForm()) return;
+
+                    loginForm.isLoading = true;
+
+                    await Future.delayed(const Duration(seconds: 2));
+
+                    loginForm.isLoading = false;
+
+                    Navigator.pushReplacementNamed(context, 'home');
+                  },
           ),
         ],
       ),
